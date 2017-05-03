@@ -1,0 +1,36 @@
+#%RAML 1.0
+title: nbdserver-gateway
+version: 1.0
+
+/exists:
+  displayName: Key Exists
+  post:
+    body: 
+      application/json:
+        schema: |
+          {
+            "type": "array",
+            "$schema": "http://json-schema.org/draft-03/schema",
+            "id": "http://jsonschema.net",
+            "required": true
+          }
+        example: |
+          ["key1", "key2"]
+    queryParameters:
+      rootkey:
+        displayName: rootKey
+        type: string
+        description: Optional root key which defines which HSET to use
+        required: false
+
+/insert:
+  displayName: Insert Data
+  put:
+    body:
+      multipart/form-data:
+        formParameters:
+        formParameters:
+          files:
+            description: List of files to be uploaded, filename is the key
+            required: true
+            type: file
