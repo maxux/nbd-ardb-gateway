@@ -1,7 +1,6 @@
 package main
 
 import (
-    "github.com/go-redis/redis"
 	"net/http"
     "fmt"
     "io/ioutil"
@@ -19,16 +18,15 @@ func (api InsertAPI) Put(w http.ResponseWriter, r *http.Request) {
     rootkey := r.FormValue("rootkey")
     fmt.Println(rootkey)
 
-    client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-    })
-
-    pong, err := client.Ping().Result()
-    fmt.Println(pong, err)
-
     r.ParseMultipartForm(8192)
+
+    // connect ardb
+    client, err := getArdb()
+    if err != nil {
+        fmt.Println(err)
+		w.WriteHeader(500)
+		return
+	}
 
     m := r.MultipartForm
     files := m.File["files[]"]

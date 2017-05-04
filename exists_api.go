@@ -1,7 +1,6 @@
 package main
 
 import (
-    "github.com/go-redis/redis"
 	"encoding/json"
 	"net/http"
     "fmt"
@@ -17,6 +16,9 @@ func (api ExistsAPI) Post(w http.ResponseWriter, r *http.Request) {
     var keys []string
 
     fmt.Println(rootkey)
+    if rootkey != "" {
+        fmt.Println("Using HSET:", rootkey)
+    }
 
 	// decode request
 	if err := json.NewDecoder(r.Body).Decode(&keys); err != nil {
@@ -27,21 +29,35 @@ func (api ExistsAPI) Post(w http.ResponseWriter, r *http.Request) {
 
     var klen = len(keys)
 
-    client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-    })
+    // connect ardb
+    client, err := getArdb()
+    if err != nil {
+        fmt.Println(err)
+		w.WriteHeader(500)
+		return
+	}
 
-    pong, err := client.Ping().Result()
-    fmt.Println(pong, err)
-
+    // build list
     var notFoundList = make([]string, klen)
     var notFound = 0
 
     for i := 0; i < klen; i++ {
         fmt.Printf("Testing: %s\n", keys[i])
-        exists, _ := client.Exists(keys[i]).Result()
+        var exists int64
+
+        if rootkey != "" {
+            existsBool, _ := client.HExists(rootkey, keys[i]).Result()
+
+            // FIXME
+            if existsBool {
+                exists = 1
+            } else {
+                exists = 0
+            }
+
+        } else {
+            exists, _ = client.Exists(keys[i]).Result()
+        }
 
         if exists == 0 {
             notFoundList[notFound] = keys[i]
