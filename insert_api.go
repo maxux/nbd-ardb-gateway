@@ -38,6 +38,8 @@ func (api InsertAPI) Put(w http.ResponseWriter, r *http.Request) {
         file, err := files[i].Open()
         defer file.Close()
 
+        fmt.Println("Inserting:", files[i].Filename)
+
         if err != nil {
             w.WriteHeader(400)
             fmt.Println(err)

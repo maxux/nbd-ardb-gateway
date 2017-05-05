@@ -4,7 +4,7 @@ class InsertService:
 
 
 
-    def insert_put(self, data, headers=None, query_params=None, content_type="application/json"):
+    def insert_put(self, data, headers=None, query_params=None, content_type="multipart/form-data"):
         """
         Upload key/value to the remote storage
         It is method for PUT /insert

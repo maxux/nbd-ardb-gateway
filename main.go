@@ -31,7 +31,7 @@ func keyExists(client *redis.Client, key string, rootkey string) bool {
     }
 
     exists, _ := client.Exists(key).Result()
-    return (exists == 0)
+    return (exists == 1)
 }
 
 func main() {
