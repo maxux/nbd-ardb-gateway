@@ -24,6 +24,16 @@ func getArdb() (*redis.Client, error) {
     return client, err
 }
 
+func keyExists(client *redis.Client, key string, rootkey string) bool {
+    if rootkey != "" {
+        existsBool, _ := client.HExists(rootkey, key).Result()
+        return existsBool
+    }
+
+    exists, _ := client.Exists(key).Result()
+    return (exists == 0)
+}
+
 func main() {
 	// input validator
 	validator.SetValidationFunc("multipleOf", goraml.MultipleOf)

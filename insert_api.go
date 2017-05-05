@@ -17,6 +17,9 @@ func (api InsertAPI) Put(w http.ResponseWriter, r *http.Request) {
 
     rootkey := r.FormValue("rootkey")
     fmt.Println(rootkey)
+    if rootkey != "" {
+        fmt.Println("Using HSET:", rootkey)
+    }
 
     r.ParseMultipartForm(8192)
 
@@ -41,10 +44,7 @@ func (api InsertAPI) Put(w http.ResponseWriter, r *http.Request) {
             return
         }
 
-        fmt.Println("Trying to insert:", files[i].Filename)
-        exists, _ := client.Exists(files[i].Filename).Result()
-
-        if exists == 1 {
+        if keyExists(client, files[i].Filename, rootkey) == true {
             w.WriteHeader(401)
             fmt.Println("Key exists, overwrite denied:", files[i].Filename)
             return
@@ -57,7 +57,12 @@ func (api InsertAPI) Put(w http.ResponseWriter, r *http.Request) {
             return
         }
 
-        client.Set(files[i].Filename, buffer, 0)
+        if rootkey != "" {
+            client.HSet(rootkey, files[i].Filename, buffer)
+
+        } else {
+            client.Set(files[i].Filename, buffer, 0)
+        }
     }
 
     client.Close()

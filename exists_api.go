@@ -43,23 +43,7 @@ func (api ExistsAPI) Post(w http.ResponseWriter, r *http.Request) {
 
     for i := 0; i < klen; i++ {
         fmt.Printf("Testing: %s\n", keys[i])
-        var exists int64
-
-        if rootkey != "" {
-            existsBool, _ := client.HExists(rootkey, keys[i]).Result()
-
-            // FIXME
-            if existsBool {
-                exists = 1
-            } else {
-                exists = 0
-            }
-
-        } else {
-            exists, _ = client.Exists(keys[i]).Result()
-        }
-
-        if exists == 0 {
+        if keyExists(client, keys[i], rootkey) == false {
             notFoundList[notFound] = keys[i]
             notFound += 1
         }
