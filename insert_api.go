@@ -1,9 +1,10 @@
 package main
 
 import (
-	"net/http"
+    "net/http"
     "fmt"
     "io/ioutil"
+    "encoding/base64"
 )
 
 // InsertAPI is API implementation of /insert root endpoint
@@ -38,6 +39,13 @@ func (api InsertAPI) Put(w http.ResponseWriter, r *http.Request) {
         file, err := files[i].Open()
         defer file.Close()
 
+        decoded, err := base64.StdEncoding.DecodeString(files[i].Filename)
+        if err != nil {
+            fmt.Println(err)
+            w.WriteHeader(500)
+            return
+        }
+
         fmt.Println("Inserting:", files[i].Filename)
 
         if err != nil {
@@ -46,7 +54,7 @@ func (api InsertAPI) Put(w http.ResponseWriter, r *http.Request) {
             return
         }
 
-        if keyExists(client, files[i].Filename, rootkey) == true {
+        if keyExists(client, string(decoded), rootkey) == true {
             w.WriteHeader(401)
             fmt.Println("Key exists, overwrite denied:", files[i].Filename)
             return
@@ -60,10 +68,10 @@ func (api InsertAPI) Put(w http.ResponseWriter, r *http.Request) {
         }
 
         if rootkey != "" {
-            client.HSet(rootkey, files[i].Filename, buffer)
+            client.HSet(rootkey, string(decoded), buffer)
 
         } else {
-            client.Set(files[i].Filename, buffer, 0)
+            client.Set(string(decoded), buffer, 0)
         }
     }
 
