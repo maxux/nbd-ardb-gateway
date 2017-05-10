@@ -22,7 +22,12 @@ func (api InsertAPI) Put(w http.ResponseWriter, r *http.Request) {
         fmt.Println("Using HSET:", rootkey)
     }
 
-    r.ParseMultipartForm(8192)
+    err := r.ParseMultipartForm(8192)
+    if err != nil {
+        fmt.Println(err)
+		w.WriteHeader(500)
+		return
+	}
 
     // connect ardb
     client, err := getArdb()
@@ -35,6 +40,8 @@ func (api InsertAPI) Put(w http.ResponseWriter, r *http.Request) {
     m := r.MultipartForm
     files := m.File["files[]"]
 
+    fmt.Println("Inserting %d entries", len(files))
+
     for i, _ := range files {
         file, err := files[i].Open()
         defer file.Close()
@@ -46,7 +53,7 @@ func (api InsertAPI) Put(w http.ResponseWriter, r *http.Request) {
             return
         }
 
-        fmt.Println("Inserting:", files[i].Filename)
+        // fmt.Println("Inserting:", files[i].Filename)
 
         if err != nil {
             w.WriteHeader(400)

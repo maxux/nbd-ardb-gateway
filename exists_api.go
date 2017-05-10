@@ -42,8 +42,10 @@ func (api ExistsAPI) Post(w http.ResponseWriter, r *http.Request) {
     var notFoundList = make([]string, klen)
     var notFound = 0
 
+    fmt.Printf("Decoding and checking %d keys\n", klen)
+
     for i := 0; i < klen; i++ {
-        fmt.Printf("Decoding and checking: %s\n", keys[i])
+        // fmt.Printf("Decoding and checking: %s\n", keys[i])
 
         decoded, err := base64.StdEncoding.DecodeString(keys[i])
         if err != nil {
