@@ -1,9 +1,10 @@
 package main
 
 import (
-	"encoding/json"
-	"net/http"
+    "encoding/json"
+    "net/http"
     "fmt"
+    "encoding/base64"
 )
 
 // ExistsAPI is API implementation of /exists root endpoint
@@ -42,8 +43,16 @@ func (api ExistsAPI) Post(w http.ResponseWriter, r *http.Request) {
     var notFound = 0
 
     for i := 0; i < klen; i++ {
-        fmt.Printf("Testing: %s\n", keys[i])
-        if keyExists(client, keys[i], rootkey) == false {
+        decoded, err := base64.StdEncoding.DecodeString(keys[i])
+        if err != nil {
+            fmt.Println(err)
+            w.WriteHeader(500)
+            return
+        }
+
+        fmt.Printf("Testing: %s\n", string(decoded))
+
+        if keyExists(client, string(decoded), rootkey) == false {
             notFoundList[notFound] = keys[i]
             notFound += 1
         }
