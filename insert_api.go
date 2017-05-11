@@ -40,7 +40,7 @@ func (api InsertAPI) Put(w http.ResponseWriter, r *http.Request) {
     m := r.MultipartForm
     files := m.File["files[]"]
 
-    fmt.Println("Inserting %d entries", len(files))
+    fmt.Printf("Inserting %d entries\n", len(files))
 
     for i, _ := range files {
         file, err := files[i].Open()
